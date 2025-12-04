@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Boundaries</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        height: 100vh;
+        color: #ddd;
+        background-color: #111;
+
+        label {
+          padding: 1em;
+          background-color: #060;
+        }
+
+        #input {
+          font-size: 1.5em;
+          color: #0c0;
+        }
+
+        u {
+          text-decoration: none;
+        }
+
+        &:has(input:checked) {
+          & #input {
+            color: #c00;
+
+            /* use non-breaking spaces to force letters apart */
+            i.after {
+              &::after {
+                content: "\00A0";
+                display: inline-block;
+              }
+            }
+            i.before::before {
+              content: "\00A0";
+              display: inline-block;
+            }
+            u {
+              font-size: 0;
+            }
+          }
+        }
+
+        #segments {
+          flex: 1;
+          overflow-y: auto;
+        }
+
+        pre {
+          white-space: pre-wrap;
+          
+          &::first-line {
+            font-size: 1.5em;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <label>
+      <span>Use confusing CSS to change the spacing: </span><input type="checkbox">
+    </label>
+    <p id="input"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
+    <pre id="words"></pre>
+    <pre id="segments"></pre>
+
+    <script>
+      const checkbox = document.getElementById("input");
+      const inputP = document.getElementById("input");
+      const wordsPre = document.getElementById("words");
+      const segmentsPre = document.getElementById("segments");
+
+      const text = input.textContent;
+
+      const lang = "en";
+      const options = { granularity: "word" };
+      const segmenter = new Intl.Segmenter(lang, options);
+      const words = Array.from(segmenter.segment(text));
+      const justWords = words
+        .filter((item) => item.isWordLike)
+        .map((item) => item.segment);
+
+      wordsPre.textContent = `words:
+${JSON.stringify(justWords, null, "  ")}`;
+      segmentsPre.textContent = `segments:
+${JSON.stringify(words, null, "  ")}`;
+    </script>
+  </body>
+</html>
