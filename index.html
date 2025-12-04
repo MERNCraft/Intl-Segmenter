@@ -18,7 +18,7 @@
           background-color: #060;
         }
 
-        #input {
+        #source {
           font-size: 1.5em;
           color: #0c0;
         }
@@ -28,7 +28,7 @@
         }
 
         &:has(input:checked) {
-          & #input {
+          & #source {
             color: #c00;
 
             /* use non-breaking spaces to force letters apart */
@@ -68,21 +68,20 @@
       <span>Use confusing CSS to change the spacing: </span>
       <input type="checkbox" id="checkbox">
     </label>
-    <p id="input"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
+    <p id="source"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
     <pre id="words"></pre>
     <pre id="segments"></pre>
 
     <script>
       const checkbox = document.getElementById("checkbox");
-      const inputP = document.getElementById("input");
+      const source = document.getElementById("source");
       const wordsPre = document.getElementById("words");
       const segmentsPre = document.getElementById("segments");
 
       checkbox.addEventListener("change", segmentText)
 
       function segmentText() {
-        console.log("Segmenting...")
-        const text = input.textContent;
+        const text = source.textContent;
 
         const lang = "en";
         const options = { granularity: "word" };
