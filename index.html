@@ -65,32 +65,40 @@
   </head>
   <body>
     <label>
-      <span>Use confusing CSS to change the spacing: </span><input type="checkbox">
+      <span>Use confusing CSS to change the spacing: </span>
+      <input type="checkbox" id="checkbox">
     </label>
     <p id="input"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
     <pre id="words"></pre>
     <pre id="segments"></pre>
 
     <script>
-      const checkbox = document.getElementById("input");
+      const checkbox = document.getElementById("checkbox");
       const inputP = document.getElementById("input");
       const wordsPre = document.getElementById("words");
       const segmentsPre = document.getElementById("segments");
 
-      const text = input.textContent;
+      checkbox.addEventListener("change", segmentText)
 
-      const lang = "en";
-      const options = { granularity: "word" };
-      const segmenter = new Intl.Segmenter(lang, options);
-      const words = Array.from(segmenter.segment(text));
-      const justWords = words
-        .filter((item) => item.isWordLike)
-        .map((item) => item.segment);
+      function segmentText() {
+        console.log("Segmenting...")
+        const text = input.textContent;
 
-      wordsPre.textContent = `words:
+        const lang = "en";
+        const options = { granularity: "word" };
+        const segmenter = new Intl.Segmenter(lang, options);
+        const words = Array.from(segmenter.segment(text));
+        const justWords = words
+          .filter((item) => item.isWordLike)
+          .map((item) => item.segment);
+
+        wordsPre.textContent = `words:
 ${JSON.stringify(justWords, null, "  ")}`;
-      segmentsPre.textContent = `segments:
+        segmentsPre.textContent = `segments:
 ${JSON.stringify(words, null, "  ")}`;
+      }
+
+      segmentText()
     </script>
   </body>
 </html>
