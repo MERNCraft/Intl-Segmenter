@@ -13,9 +13,9 @@
         color: #ddd;
         background-color: #111;
 
-        div#settings {
+        & div#settings {
           background-color: #060;
-          padding: 1em;
+          padding: 0 1em 1em;
 
           #use-css {
             opacity: 0.5;
@@ -27,10 +27,12 @@
             }
           }
 
-          & > label {
+          & > label,
+          & details > label {
             display: block;
             width: 100%;
             text-align: center;
+            margin-top: 1em;
           }
 
           & details {
@@ -65,15 +67,12 @@
           }
         }
 
+
         & p[lang] {
           font-size: 1.2em;
           color: #0c0;
           text-align: center;
           display: none;
-
-          &.selected {
-            display: block
-          }
         }
 
         u {
@@ -113,9 +112,23 @@
             font-size: 1.5em;
           }
         }
+
+        #identical {
+          color: #0c0;
+          text-align: center;
+
+          &:empty {
+            display: none;
+          }
+        }
+      }
+
+      .selected {
+        display: block!important
       }
     </style>
   </head>
+
   <body>
     <div id="settings">
       <label id="use-css">
@@ -123,11 +136,15 @@
         <input type="checkbox" id="checkbox">
       </label>
 
-      <details class="note">
+      <details id="details">
         <summary>More</summary>
 
         <div class="language">
           <span>Text in:</span>
+          <label>
+            <input type="radio" name="language" id="ar" checked>
+            <img src="images/ar.png" alt="عربي">
+          </label>
           <label>
             <input type="radio" name="language" id="en" checked>
             <img src="images/en-GB.png" alt="English">
@@ -135,6 +152,10 @@
           <label>
             <input type="radio" name="language" id="fr">
             <img src="images/fr-FR.png" alt="Français">
+          </label>
+          <label>
+            <input type="radio" name="language" id="ja">
+            <img src="images/ja.png" alt="日本語">
           </label>
           <label>
             <input type="radio" name="language" id="ru">
@@ -151,8 +172,10 @@
           <label>
             <span>lang:</span>
             <select id="lang">
-              <option value="en">en</option>
+              <option value="ar">ar</option>
+              <option value="en" selected>en</option>
               <option value="fr">fr</option>
+              <option value="ja">ja</option>
               <option value="ru">ru</option>
               <option value="th">th</option>
             </select>
@@ -168,41 +191,58 @@
           </label>
           })
         </div>
+
+        <label>
+          <span>Compare segmentation across all languages</span>
+          <input type="checkbox" id="check-all">
+        </label>
       </details>
     </div>
     <p id="source" lang="en" class="selected"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
-
-    <p lang="fr">Un tel jeu avec les espaces semble impossible en français.</p>
-    <p lang="ru">Такая игра с пробелами кажется невозможной на русском.</p>
-    <p lang="th">เกมเว้นวรรคแบบนี้ดูเหมือนจะเป็นไปไม่ได้ในภาษาไทย</p>
+    <p lang="fr">Les premières occurrences du mot « France » en langue française se rencontrent au XIe siècle.</p>
+    <p lang="ja">日本において、国号を直接かつ明確に規定した法令は存在しない。</p>
+    <p lang="ru">Россия — многонациональное государство с широким этнокультурным многообразием.</p>
+    <p lang="th">ประเทศไทยมีประชากรเกือบ 66 ล้านคน พื้นที่ประมาณ 513,115 ตารางกิโลเมตร</p>
+    <p lang="ar">العربية لغةٌ رسمية في كل دول الوطن العربي</p>
 
     <pre id="words"></pre>
+    <p id="identical"></p>
     <pre id="segments"></pre>
+
 
     <script>
       const useCSS = document.getElementById("use-css")
       const checkbox = document.getElementById("checkbox")
+      const details = document.getElementById("details")
       const triggers = Array.from(
         document.querySelectorAll("[name=language]")
       )
+      const checkAll = document.getElementById("check-all")
       const select = document.getElementById("lang")
       const granularity = document.getElementById("granularity")
+      triggers.push(checkAll)
       triggers.push(select)
       triggers.push(granularity)
 
       const source = document.getElementById("source")
       const wordsPre = document.getElementById("words")
+      const identical = document.getElementById("identical")
       const segmentsPre = document.getElementById("segments")
       const phrases = Array.from(
         document.querySelectorAll("p[lang]")
+      )
+      const langs = phrases.map(
+        phrase => phrase.getAttribute("lang")
       )
 
       let languageId
 
       checkbox.addEventListener("change", segmentText)
+      details.addEventListener("toggle", toggleDetails)
       triggers.forEach( trigger => {
         trigger.addEventListener("change", setLanguage)
       })
+
 
       function segmentText() {
         const selector = `p[lang=${languageId}]`
@@ -210,10 +250,10 @@
         const text = source.textContent
 
         const lang = select.value
-        const options = { lang, granularity: granularity.value }
-        console.log("options:", options)
+        const options = { granularity: granularity.value }
         const segmenter = new Intl.Segmenter(lang, options)
         const segments = Array.from(segmenter.segment(text))
+
         let items = segments
           .filter((item) => item.isWordLike)
           .map((item) => item.segment)
@@ -231,12 +271,61 @@ ${JSON.stringify(items, null, "  ")}`
         segmentsPre.textContent = `segments:
 ${JSON.stringify(segments, null, "  ")}`
 
-        console.log("segmenter.lang:", segmenter.lang)
+        if (checkAll.checked) {
+          checkAllLanguageSettings(text)
+
+        } else {
+          identical.textContent = ""
+        }
       }
+
+
+      function checkAllLanguageSettings(text) {
+        // Segment the current text using all values of lang
+        const sets = langs.map( lang => {
+          const options = { granularity: granularity.value }
+          const segmenter = new Intl.Segmenter(lang, options)
+          const segments = Array.from(segmenter.segment(text))
+          segments.lang = lang
+
+          return segments
+        })
+
+        // Pair each segmentation with one from a different lang
+        const pairs = sets.reduce(( pairs, original, index) => {
+          const compare =  (index)
+            ? sets[index - 1]
+            : sets[sets.length - 1]
+
+            pairs.push([ original, compare ])
+          return pairs
+        }, [])
+
+        const same = pairs.every(([ original, compare ]) => (
+          JSON.stringify(original) === JSON.stringify(compare)
+        ))
+
+        identical.innerHTML = `Segmentation results with all language settings are: <b>${same ? "identical" : "different"}</b>`
+      }
+
+
+      function toggleDetails({ target }) {
+        if (!target.open) {
+          // Select English when details or closed
+          checkAll.checked = false
+          target = triggers[1]
+          target.checked = true
+          setLanguage({ target })
+        }
+      }
+
 
       function setLanguage({ target }) {
         const { id, tagName } = target
-        if (tagName === "INPUT") {
+        if ( id !== "check-all"
+          && id !== "lang"
+          && id !== "granularity"
+           ) {
           languageId = id
         }
         phrases.forEach( phrase => {
@@ -254,8 +343,10 @@ ${JSON.stringify(segments, null, "  ")}`
         segmentText()
       }
 
+
       const target = document.querySelector("[type=radio]:checked")
       setLanguage({ target })
+
     </script>
   </body>
 </html>
