@@ -13,21 +13,74 @@
         color: #ddd;
         background-color: #111;
 
-        label {
-          padding: 1em;
+        div#settings {
           background-color: #060;
+          padding: 1em;
+
+          #use-css {
+            opacity: 0.5;
+            pointer-events: none;
+
+            &.active {
+              opacity: 1;
+              pointer-events: all;
+            }
+          }
+
+          & > label {
+            display: block;
+            width: 100%;
+            text-align: center;
+          }
+
+          & details {
+            & div {
+              text-align: center;
+              margin-top: 1em;
+
+              &.language {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                input[type=radio] {
+                  position: absolute;
+                  left: -999vw;
+
+                  &:checked ~ img {
+                    opacity: 1;
+                    border-color: white;
+                    box-shadow: 0 0 10px white;
+                  }
+                }
+                & label img {
+                  width: 1.5em;
+                  margin-left: 0.5em;
+                  opacity: 0.5;
+                  border: 1px solid transparent;
+                  border-radius: 1em;
+                }
+              }
+            }
+          }
         }
 
-        #source {
-          font-size: 1.5em;
+        & p[lang] {
+          font-size: 1.2em;
           color: #0c0;
+          text-align: center;
+          display: none;
+
+          &.selected {
+            display: block
+          }
         }
 
         u {
           text-decoration: none;
         }
 
-        &:has(input:checked) {
+        &:has(#checkbox:checked) {
           & #source {
             color: #c00;
 
@@ -55,7 +108,7 @@
 
         pre {
           white-space: pre-wrap;
-          
+
           &::first-line {
             font-size: 1.5em;
           }
@@ -64,40 +117,145 @@
     </style>
   </head>
   <body>
-    <label>
-      <span>Use confusing CSS to change the spacing: </span>
-      <input type="checkbox" id="checkbox">
-    </label>
-    <p id="source"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
+    <div id="settings">
+      <label id="use-css">
+        <span>Use CSS to change the spacing:</span>
+        <input type="checkbox" id="checkbox">
+      </label>
+
+      <details class="note">
+        <summary>More</summary>
+
+        <div class="language">
+          <span>Text in:</span>
+          <label>
+            <input type="radio" name="language" id="en" checked>
+            <img src="images/en-GB.png" alt="English">
+          </label>
+          <label>
+            <input type="radio" name="language" id="fr">
+            <img src="images/fr-FR.png" alt="Français">
+          </label>
+          <label>
+            <input type="radio" name="language" id="ru">
+            <img src="images/ru.png" alt="Русский">
+          </label>
+          <label>
+            <input type="radio" name="language" id="th">
+            <img src="images/th.png" alt="ไทย">
+          </label>
+        </div>
+
+        <div class="options">
+          new Intl.Segmenter ({
+          <label>
+            <span>lang:</span>
+            <select id="lang">
+              <option value="en">en</option>
+              <option value="fr">fr</option>
+              <option value="ru">ru</option>
+              <option value="th">th</option>
+            </select>
+          </label>
+          ,
+          <label>
+            <span>granularity:</span>
+            <select id="granularity">
+              <option value="grapheme">grapheme</option>
+              <option value="word" selected>word</option>
+              <option value="sentence">sentence</option>
+            </select>
+          </label>
+          })
+        </div>
+      </details>
+    </div>
+    <p id="source" lang="en" class="selected"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
+
+    <p lang="fr">Un tel jeu avec les espaces semble impossible en français.</p>
+    <p lang="ru">Такая игра с пробелами кажется невозможной на русском.</p>
+    <p lang="th">เกมเว้นวรรคแบบนี้ดูเหมือนจะเป็นไปไม่ได้ในภาษาไทย</p>
+
     <pre id="words"></pre>
     <pre id="segments"></pre>
 
     <script>
-      const checkbox = document.getElementById("checkbox");
-      const source = document.getElementById("source");
-      const wordsPre = document.getElementById("words");
-      const segmentsPre = document.getElementById("segments");
+      const useCSS = document.getElementById("use-css")
+      const checkbox = document.getElementById("checkbox")
+      const triggers = Array.from(
+        document.querySelectorAll("[name=language]")
+      )
+      const select = document.getElementById("lang")
+      const granularity = document.getElementById("granularity")
+      triggers.push(select)
+      triggers.push(granularity)
+
+      const source = document.getElementById("source")
+      const wordsPre = document.getElementById("words")
+      const segmentsPre = document.getElementById("segments")
+      const phrases = Array.from(
+        document.querySelectorAll("p[lang]")
+      )
+
+      let languageId
 
       checkbox.addEventListener("change", segmentText)
+      triggers.forEach( trigger => {
+        trigger.addEventListener("change", setLanguage)
+      })
 
       function segmentText() {
-        const text = source.textContent;
+        const selector = `p[lang=${languageId}]`
+        const source = document.querySelector(selector)
+        const text = source.textContent
 
-        const lang = "en";
-        const options = { granularity: "word" };
-        const segmenter = new Intl.Segmenter(lang, options);
-        const words = Array.from(segmenter.segment(text));
-        const justWords = words
+        const lang = select.value
+        const options = { lang, granularity: granularity.value }
+        console.log("options:", options)
+        const segmenter = new Intl.Segmenter(lang, options)
+        const segments = Array.from(segmenter.segment(text))
+        let items = segments
           .filter((item) => item.isWordLike)
-          .map((item) => item.segment);
+          .map((item) => item.segment)
 
-        wordsPre.textContent = `words:
-${JSON.stringify(justWords, null, "  ")}`;
+          if (items.length) {
+          items = `words:
+${JSON.stringify(items, null, "  ")}`
+        } else {
+          const count = segments.length
+          const s = count === 1 ? "" : "s"
+          items = `${segments.length} ${granularity.value}${s} found`
+        }
+
+        wordsPre.textContent = items
         segmentsPre.textContent = `segments:
-${JSON.stringify(words, null, "  ")}`;
+${JSON.stringify(segments, null, "  ")}`
+
+        console.log("segmenter.lang:", segmenter.lang)
       }
 
-      segmentText()
+      function setLanguage({ target }) {
+        const { id, tagName } = target
+        if (tagName === "INPUT") {
+          languageId = id
+        }
+        phrases.forEach( phrase => {
+          const action = (phrase.getAttribute("lang") === languageId)
+            ? "add"
+            : "remove"
+          phrase.classList[action]("selected")
+        })
+
+        const action = (id === "en")
+          ? "add"
+          : "remove"
+          useCSS.classList[action]("active")
+
+        segmentText()
+      }
+
+      const target = document.querySelector("[type=radio]:checked")
+      setLanguage({ target })
     </script>
   </body>
 </html>
