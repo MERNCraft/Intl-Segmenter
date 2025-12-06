@@ -58,7 +58,7 @@
                 & label img {
                   width: 1.5em;
                   margin-left: 0.5em;
-                  opacity: 0.5;
+                  opacity: 0.75;
                   border: 1px solid transparent;
                   border-radius: 1em;
                 }
@@ -142,28 +142,52 @@
         <div class="language">
           <span>Text in:</span>
           <label>
-            <input type="radio" name="language" id="ar" checked>
-            <img src="images/ar.png" alt="عربي">
+            <input type="radio" name="language" id="en" checked>
+            <img src="images/en-GB.png" checked alt="English" title="English">
           </label>
           <label>
-            <input type="radio" name="language" id="en" checked>
-            <img src="images/en-GB.png" alt="English">
+            <input type="radio" name="language" id="am" >
+            <img src="images/am.png" alt="አማርኛ" title="አማርኛ Amharic">
+          </label>
+          <label>
+            <input type="radio" name="language" id="ar">
+            <img src="images/ar.png" alt="عربي" title="عربي Arabic">
+          </label>
+          <label>
+            <input type="radio" name="language" id="bn">
+            <img src="images/bn.png" alt="বাংলা" title="বাংলা Bengali">
           </label>
           <label>
             <input type="radio" name="language" id="fr">
-            <img src="images/fr-FR.png" alt="Français">
+            <img src="images/fr-FR.png" alt="Français" title="Français French">
+          </label>
+          <label>
+            <input type="radio" name="language" id="hi">
+            <img src="images/hi.png" alt="हिंदी" title="हिंदी Hindi">
+          </label>
+          <label>
+            <input type="radio" name="language" id="iu">
+            <img src="images/iu.png" alt="ᐃᓄᒃᑎᑐᑦ" title="ᐃᓄᒃᑎᑐᑦ Inuktut">
           </label>
           <label>
             <input type="radio" name="language" id="ja">
-            <img src="images/ja.png" alt="日本語">
+            <img src="images/ja.png" alt="日本語" title="日本語 Japanese">
+          </label>
+          <label>
+            <input type="radio" name="language" id="ko">
+            <img src="images/ko.png" alt="한국인" title="한국인 Korean">
           </label>
           <label>
             <input type="radio" name="language" id="ru">
-            <img src="images/ru.png" alt="Русский">
+            <img src="images/ru.png" alt="Русский" title="Русский Russian">
+          </label>
+          <label>
+            <input type="radio" name="language" id="ta">
+            <img src="images/ta.png" alt="தமிழ்" title="தமிழ் Tamil">
           </label>
           <label>
             <input type="radio" name="language" id="th">
-            <img src="images/th.png" alt="ไทย">
+            <img src="images/th.png" alt="ไทย" title="ไทย Thai">
           </label>
         </div>
 
@@ -172,11 +196,17 @@
           <label>
             <span>lang:</span>
             <select id="lang">
-              <option value="ar">ar</option>
               <option value="en" selected>en</option>
+              <option value="am">am</option>
+              <option value="ar">ar</option>
+              <option value="bn">bn</option>
               <option value="fr">fr</option>
+              <option value="hi">hi</option>
               <option value="ja">ja</option>
+              <option value="ko">ko</option>
+              <option value="iu">iu</option>
               <option value="ru">ru</option>
+              <option value="ta">ta</option>
               <option value="th">th</option>
             </select>
           </label>
@@ -199,11 +229,17 @@
       </details>
     </div>
     <p id="source" lang="en" class="selected"><i class="after">The<u> </u>ir</i><b>regular program<u> </u>mes</b><i class="before after">s<u class="space"> </u>end</i>s<u class="space"> </u>now.</p>
-    <p lang="fr">Les premières occurrences du mot « France » en langue française se rencontrent au XIe siècle.</p>
-    <p lang="ja">日本において、国号を直接かつ明確に規定した法令は存在しない。</p>
-    <p lang="ru">Россия — многонациональное государство с широким этнокультурным многообразием.</p>
-    <p lang="th">ประเทศไทยมีประชากรเกือบ 66 ล้านคน พื้นที่ประมาณ 513,115 ตารางกิโลเมตร</p>
+    <p lang="am">አማርኛ ፡ የኢትዮጵያ ፡ መደበኛ ፡ ቋንቋ ፡ ነው ። ሴማዊ ፡ ቋንቋዎች ፡ ውስጥ ፡ የሚመደብ ፡ ሲሆን ፡ ካረቢኛ ፡ ቀጥሎ ፡ ሁለተኛ ፡ ብዙ ፡ ተናጋሪዎች ፡</p>
     <p lang="ar">العربية لغةٌ رسمية في كل دول الوطن العربي</p>
+    <p lang="bn">বাংলা সার্বভৌম ভাষাভিত্তিক জাতিরাষ্ট্র বাংলাদেশের একমাত্র রাষ্ট্রভাষা তথা সরকারি ভাষা।</p>
+    <p lang="fr">Les premières occurrences du mot « France » en langue française se rencontrent au XIe siècle.</p>
+    <p lang="hi">हिन्दी संवैधानिक रूप से भारत की राजभाषा और भारत की सबसे अधिक बोली और समझी जाने वाली भाषा है।</p>
+    <p lang="ja">日本において、国号を直接かつ明確に規定した法令は存在しない。</p>
+    <p lang="ko">한국어(韓國語) 또는 조선어(朝鮮語)는 대한민국과 조선민주주의인민공화국의 공용어이다. 둘은 표기나 문법, 동사 어미, 표현에서 약간의 차이가 있다.</p>
+    <p lang="iu">ᐃᓅᔪᓕᒫᑦ ᐊᓂᖅᑎᕆᔪᓕᒫᑦ ᐃᓅᓚᐅᕐᒪᑕ ᐃᓱᒪᕐᓱᕐᓚᑎᒃ ᐊᒻᒪᓗ ᐊᔾᔨᐅᖃᑎᒦᒃᓗᑎᒃ ᓂᕐᓱᐊᖑᓂᒃᑯᑦ ᐊᒻᒪᓗ ᐱᔪᓐᓀᑎᑎᒍᑦ.</p>
+    <p lang="ru">Россия — многонациональное государство с широким этнокультурным многообразием.</p>
+    <p lang="ta">நான் பள்ளிக்குச் சென்று வருகிறேன்.</p>
+    <p lang="th">ประเทศไทยมีประชากรเกือบ 66 ล้านคน พื้นที่ประมาณ 513,115 ตารางกิโลเมตร</p>
 
     <pre id="words"></pre>
     <p id="identical"></p>
@@ -224,7 +260,6 @@
       triggers.push(select)
       triggers.push(granularity)
 
-      const source = document.getElementById("source")
       const wordsPre = document.getElementById("words")
       const identical = document.getElementById("identical")
       const segmentsPre = document.getElementById("segments")
@@ -311,10 +346,16 @@ ${JSON.stringify(segments, null, "  ")}`
 
       function toggleDetails({ target }) {
         if (!target.open) {
-          // Select English when details or closed
+          // When details or closed, stop checking all languages...
           checkAll.checked = false
-          target = triggers[1]
+          // ... check only English...
+          select.value = "en"
+          // ... segment into words...
+          granularity.value = "word"
+          // ... and select the English text...
+          target = triggers[0]
           target.checked = true
+          // ... just as it was after the page first loaded
           setLanguage({ target })
         }
       }

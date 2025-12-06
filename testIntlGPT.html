@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <p lang="ar">اللغة العربية غنية بالمعاني والتراكيب النحوية التي تجعلها متميزة عن غيرها من اللغات.</p>
+  <p lang="bn">বাংলাদেশের সরকারী ভাষা বাংলা এবং এটি বিশ্বব্যাপী প্রায় ২৫ কোটি মানুষের মাতৃভাষা।</p>
+  <p lang="en">English is a West Germanic language that emerged in early medieval England and has since become a global lingua franca.</p>
+  <p lang="fr">Les premières occurrences du mot « France » en langue française se rencontrent au XIe siècle.</p>
+  <p lang="hi">भारत में बहुत सारी भाषाएँ बोली जाती हैं, और प्रत्येक भाषा का अपना अलग व्याकरण होता है।</p>
+  <p lang="ja">日本において、国号を直接かつ明確に規定した法令は存在しない。</p>
+  <p lang="ru">Россия — многонациональное государство с широким этнокультурным многообразием.</p>
+  <p lang="ta">தமிழ் மொழி பல்வேறு இலக்கண விதிகளை கொண்டது, அது மற்ற மொழிகளிலிருந்து வேறுபட்டது.</p>
+  <p lang="th">ประเทศไทยมีประชากรเกือบ 66 ล้านคน พื้นที่ประมาณ 513,115 ตารางกิโลเมตร</p>
+
+  <script>
+    const languages = Array.from(document.querySelectorAll("p[lang]"))
+    const texts = languages.map( language => language.textContent)
+    const langs = languages.map( language => language.getAttribute("lang"))
+    const granularities = ["grapheme", "word", "sentence"]
+
+    console.log("langs:", langs, ", granularities:", granularities, ", texts:", texts)
+
+    // Generate segmentations for every language and granularity
+const getSegmentsAcrossLanguages = (text) => {
+  const segments = langs.reduce((result, lang) => {
+    const types = granularities.map(granularity => {
+      const options = { granularity }
+      const segmenter = new Intl.Segmenter(lang, options)
+      return Array.from(segmenter.segment(text))
+    })
+    result[lang] = types
+    return result
+  }, {})
+  return segments
+}
+
+// Generate comprehensive segmentation data for every text
+const allSegments = languages.reduce((result, language) => {
+  const text = language.textContent
+  const vo = language.getAttribute("lang")
+  const segments = getSegmentsAcrossLanguages(text)
+  result[vo] = segments
+  return result
+}, {})
+
+// Test if segmentations across granularities within each language are identical
+const identical = Object.entries(allSegments).every(([vo, segmentMap]) => {
+  const data = Object.entries(segmentMap)
+
+  // Generate a cycle of pairs of segmentations for the same language and different granularities
+  const pairs = data.map(([lang, segments], index) => {
+    const compare = index ? data[index - 1][1] : data[data.length - 1][1]
+    return [segments, compare]
+  })
+
+  // Compare within the same language and across granularities
+  return pairs.every(([segments1, segments2]) => (
+    JSON.stringify(segments1) === JSON.stringify(segments2)
+  ))
+})
+
+console.log("identical:", identical)
+  </script>
+</body>
+</html>

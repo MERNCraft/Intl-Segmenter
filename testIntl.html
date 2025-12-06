@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #result {
+      font-size: 1.5em;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <span id="result"></span>
+  <p lang="am">አማርኛ ፡ የኢትዮጵያ ፡ መደበኛ ፡ ቋንቋ ፡ ነው ። ሴማዊ ፡ ቋንቋዎች ፡ ውስጥ ፡ የሚመደብ ፡ ሲሆን ፡ ካረቢኛ ፡ ቀጥሎ ፡ ሁለተኛ ፡ ብዙ ፡ ተናጋሪዎች ፡</p>
+  <p lang="ar">العربية لغةٌ رسمية في كل دول الوطن العربي</p>
+  <p lang="bn">বাংলা সার্বভৌম ভাষাভিত্তিক জাতিরাষ্ট্র বাংলাদেশের একমাত্র রাষ্ট্রভাষা তথা সরকারি ভাষা।</p>
+  <p lang="en">English is a West Germanic language that emerged in early medieval England and has since become a global lingua franca.</p>
+  <p lang="fr">Les premières occurrences du mot « France » en langue française se rencontrent au XIe siècle.</p>
+  <p lang="hi">हिन्दी संवैधानिक रूप से भारत की राजभाषा और भारत की सबसे अधिक बोली और समझी जाने वाली भाषा है।</p>
+  <p lang="ja">日本において、国号を直接かつ明確に規定した法令は存在しない。</p>
+  <p lang="ko">한국어(韓國語) 또는 조선어(朝鮮語)는 대한민국과 조선민주주의인민공화국의 공용어이다. 둘은 표기나 문법, 동사 어미, 표현에서 약간의 차이가 있다.</p>
+  <p lang="iu">ᐃᓅᔪᓕᒫᑦ ᐊᓂᖅᑎᕆᔪᓕᒫᑦ ᐃᓅᓚᐅᕐᒪᑕ ᐃᓱᒪᕐᓱᕐᓚᑎᒃ ᐊᒻᒪᓗ ᐊᔾᔨᐅᖃᑎᒦᒃᓗᑎᒃ ᓂᕐᓱᐊᖑᓂᒃᑯᑦ ᐊᒻᒪᓗ ᐱᔪᓐᓀᑎᑎᒍᑦ. ᐃᓱᖃᖅᑐᖃᕐᑎᑕᐅᕙᓕᕐᐳᑦ ᐱᔾᔪᑎᖃᕐᓂᒃᑰᑦ ᖃᑕᖕᒧᑎᒦᑦᑎᐊᕆᖃᖅᓂᑯᓪᓗ. (ᐃᓚᖓ 1 ᓯᓚᕐᔪᐊᕐᒥᐅᑦ ᓇᓗᓀᖅᓯᐅᑎᖏᑦ ᑭᓇᒃᑯᑐᐃᓐᓀᑦ ᐱᔪᓐᓇᐅᑎᖏᑦ) </p>
+  <p lang="ru">Россия — многонациональное государство с широким этнокультурным многообразием.</p>
+  <p lang="ta">நான் பள்ளிக்குச் சென்று வருகிறேன்.</p>
+  <p lang="th">ประเทศไทยมีประชากรเกือบ 66 ล้านคน พื้นที่ประมาณ 513,115 ตารางกิโลเมตร</p>
+
+  <script>
+    const languages = Array.from(document.querySelectorAll("p[lang]"))
+    const texts = languages.map( language => language.textContent)
+    const langs = languages.map( language => language.getAttribute("lang"))
+    const granularities = ["grapheme", "word", "sentence"]
+
+    console.log("langs:", langs, ", granularities:", granularities, ", texts:", texts)
+
+    // Generate segmentations for every language and for every
+    // granularity for the given text. Output in the format: 
+    // { <lang code>: [
+    //    [ grapheme segments ],
+    //    [ word segments ],
+    //    [ sentence segments ]
+    // ]}
+    const getSegmentsAcrossLanguages = ( text ) => {
+      const segments = langs.reduce(( result, lang ) => {
+        const types = granularities.map( granularity => {
+          const options = { granularity }
+          const segmenter = new Intl.Segmenter( lang, options )
+          return Array.from(segmenter.segment(text))
+        })
+
+        result[lang] = types
+
+        return result
+      }, {})
+
+      return segments
+    }
+
+
+    // Generate comprehensive segmentation data for every text.
+    // Output in the format:
+    // { <source language code>: { comprehensive segmentation },
+    //   ...
+    /// }
+    const allSegments = languages.reduce(( result, language )=> {
+      const text = language.textContent
+      const vo = language.getAttribute("lang")
+
+      const segments = getSegmentsAcrossLanguages(text)
+      result[vo] = segments
+
+      return result
+    }, {})
+
+
+    console.log("allSegments", JSON.stringify(allSegments, null, '  '));
+
+
+    const entries = Object.entries(allSegments)
+    const identical = entries.every(([ vo, segmentMap ]) => {
+      const data = Object.entries(segmentMap)
+      // Generate a cycle of pairs of segmentations of the vo text
+      // so that each can be compared with another. If all pairs
+      // match with each other, then all segmentations match
+      // regardless of segmentation language
+      const pairs = data.map(([ lang, segments ], index ) => {
+        const compare = (index)
+          ? data[index - 1][1]
+          : data[data.length - 1][1]
+        
+        return [ segments, compare ]
+      })
+
+      return pairs.every(([ segments1, segments2 ]) => (
+        JSON.stringify(segments1) ===JSON.stringify(segments2)
+      ))
+    })
+    
+    document.getElementById("result").innerText = `All segmentations are identical, regardless of segmentation language: ${identical}`
+  </script>
+</body>
+</html>
