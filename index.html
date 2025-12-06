@@ -336,6 +336,8 @@ ${JSON.stringify(segments, null, "  ")}`
           return pairs
         }, [])
 
+        // If every pair contains identical segmentations, then
+        // all the segmentations are identical.
         const same = pairs.every(([ original, compare ]) => (
           JSON.stringify(original) === JSON.stringify(compare)
         ))

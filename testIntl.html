@@ -46,6 +46,8 @@
         const types = granularities.map( granularity => {
           const options = { granularity }
           const segmenter = new Intl.Segmenter( lang, options )
+          // console.log("options():", segmenter.resolvedOptions())
+
           return Array.from(segmenter.segment(text))
         })
 
@@ -74,7 +76,7 @@
     }, {})
 
 
-    console.log("allSegments", JSON.stringify(allSegments, null, '  '));
+    // console.log("allSegments", JSON.stringify(allSegments, null, '  '));
 
 
     const entries = Object.entries(allSegments)
